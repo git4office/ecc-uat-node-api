@@ -1,0 +1,5 @@
+Config - dev = 1000 - test = 3030 - dev = 6060
+
+Rulesengine- dev = 2000 - test = 4040 - dev = 7070
+
+Analytics - dev = 3000 - test = 5050  - dev = 8080
