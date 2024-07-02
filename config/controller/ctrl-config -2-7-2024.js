@@ -901,45 +901,52 @@ const adduser = (req,res)=>{
 
 
 
-const subequipmentdatapoint = (req, res) => {
+const subequipmentdatapoint = (req,res)=>{
   console.log(req.originalUrl);
   dbName = config.databse
 
   eqptid = req.query.eqptid
   assoeqptid = req.query.aeid
+  
 
+  sql.connect(config,function(err){
+      if(err)conole.log(err)
+  
+  
+      var request = new sql.Request();
+  
+  
+     //query = "SELECT [recordid],[countryname] FROM ["+dbName+"].[ECCAnalytics].[Countries]"
+     //query = "SELECT datapointname FROM ["+dbName+"].ECCAnalytics.SubEquipments_DataPoints where equipmenttype ='"+eqpt+"' and subequipmenttype ='"+sbeqpt+"'"
+     
+     //After tables are modified previous sql was not in use and following query is in place
+    // query = "SELECT associatedequiptype FROM ["+dbName+"].ECCAnalytics.AssociatedEquipments where equipmentid ='"+eqptid+"' and associatedequipid ='"+assoeqptid+"'"
+     //query = "SELECT associatedequiptype FROM ["+dbName+"].ECCAnalytics.AssociatedEquipments where equipmentid ='"+eqptid+"' and associatedequipid in("+assoeqptid+")"
+     //query = "select pointid, [pointdesc] from ["+dbName+"].[ECCAnalytics].[PointType] where pointid in (SELECT [pointid] FROM ["+dbName+"].ECCAnalytics.AssociatedEquipments_DataPoints where equipmentid ='"+eqptid+"' and associatedequipid in("+assoeqptid+"))"
+     query = "select [T1].[pointid], [T1].[pointdesc],[T2].[associatedequipid] from ["+dbName+"].[ECCAnalytics].[PointType] T1 left join ["+dbName+"].ECCAnalytics.AssociatedEquipments_DataPoints T2 on [T1].[pointid] =  [T2].[pointid] where [T2].equipmentid ='"+eqptid+"' and [T2].associatedequipid  in("+assoeqptid+")"
+     
+     request.query(query,function(err,records){
+          if(err)
+          console.log(err);
+          else{
+           // DATA.append({'equipmentname': row[1],'deviceid': row[2],'ip': row[3],'port': row[4],'network': row[5],'manufacturer': row[6],'modelname': row[7] })
 
-  sql.connect(config, function (err) {
-    if (err) conole.log(err)
+/*
+          var data = [];
+          for (var i = 0; i < records['recordsets'][0].length; i++) { 
+           data.push({recordid: records['recordsets'][0][i]['recordid'],projname: records['recordsets'][0][i]['projname'],projdesc: records['recordsets'][0][i]['projdesc'],countryname: records['recordsets'][0][i]['countryname'], countrydesc: records['recordsets'][0][i]['countrydesc'],cityname: records['recordsets'][0][i]['cityname'],citydesc: records['recordsets'][0][i]['citydesc'],campusname: records['recordsets'][0][i]['campusname'],campusdesc: records['recordsets'][0][i]['campusdesc'],buildingname: records['recordsets'][0][i]['buildingname'],buildingdesc: records['recordsets'][0][i]['buildingdesc'],equipmentname: records['recordsets'][0][i]['equipmentname'],equipmenttype: records['recordsets'][0][i]['equipmenttype'],subequipmentname: records['recordsets'][0][i]['subequipmentdesc'],subequipmentdesc: records['recordsets'][0][i]['subequipmentdesc']});
+          }
+*/
 
-
-    var request = new sql.Request();
-
-
-    query = "select [T1].[pointid], [T1].[pointdesc],[T2].[associatedequipid], [T3].[associatedequiptype] from [" + dbName + "].[ECCAnalytics].[PointType] T1 left join [" + dbName + "].ECCAnalytics.AssociatedEquipments_DataPoints T2 on [T1].[pointid] =  [T2].[pointid] left join [" + dbName + "].[ECCAnalytics].[AssociatedEquipments]  T3 on [T2].[associatedequipid] = [T3].[associatedequipid] where [T2].equipmentid ='" + eqptid + "' and [T2].associatedequipid  in(" + assoeqptid + ")"
-
-    request.query(query, function (err, records) {
-      if (err)
-        console.log(err);
-      else {
-        // DATA.append({'equipmentname': row[1],'deviceid': row[2],'ip': row[3],'port': row[4],'network': row[5],'manufacturer': row[6],'modelname': row[7] })
-
-        /*
-                  var data = [];
-                  for (var i = 0; i < records['recordsets'][0].length; i++) { 
-                   data.push({recordid: records['recordsets'][0][i]['recordid'],projname: records['recordsets'][0][i]['projname'],projdesc: records['recordsets'][0][i]['projdesc'],countryname: records['recordsets'][0][i]['countryname'], countrydesc: records['recordsets'][0][i]['countrydesc'],cityname: records['recordsets'][0][i]['cityname'],citydesc: records['recordsets'][0][i]['citydesc'],campusname: records['recordsets'][0][i]['campusname'],campusdesc: records['recordsets'][0][i]['campusdesc'],buildingname: records['recordsets'][0][i]['buildingname'],buildingdesc: records['recordsets'][0][i]['buildingdesc'],equipmentname: records['recordsets'][0][i]['equipmentname'],equipmenttype: records['recordsets'][0][i]['equipmenttype'],subequipmentname: records['recordsets'][0][i]['subequipmentdesc'],subequipmentdesc: records['recordsets'][0][i]['subequipmentdesc']});
-                  }
-        */
-        console.log(query);
-
-        return res.status(200).json(records['recordsets'][0])
+          return res.status(200).json(records['recordsets'][0])
       }
-
-    }
-
-    )
+  
+      }
+  
+  )
   })
 }
+
 
 
 
