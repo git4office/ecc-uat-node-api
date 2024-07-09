@@ -1125,37 +1125,6 @@ const updateallruletimerrecord = async (req,res)=>{
 
 }
 
-
-const getdatapointsforrulesengine = async (req, res) => {
-  console.log(req.originalUrl)
-  dbName = config.databse
-  const pool = new sql.ConnectionPool(config);
-
-
-  try {
-    await pool.connect();
-    const request = pool.request();
-
-    eqpname = req.query.eqpname
-    query = "SELECT DV.[equipmentname],DV.[deviceid],DV.[ip],DV.[port],DV.[network],DV.[manufacturer],DV.[modelname],[datapointid],[pointid],[actualpoint],[multiply],[addition],[dated],[objtype],[objinstance],[devicerecordid],[isenergyvalue] FROM [" + dbName + "].[ECCAnalytics].DataPoint DP "
-    query += " left join [" + dbName + "].[ECCAnalytics].[Devices] DV on [DP].[devicerecordid] = [DV].[recordid] where DV.equipmentname = '" + eqpname + "' and  DATEDIFF(HOUR, dated, GETDATE()) > 24;"
-    records = await request.query(query)
-    console.log(query)
-    var data = [];
-    for (var i = 0; i < records['recordsets'][0].length; i++) {
-      //data.push({datapointid: records['recordsets'][0][i]['datapointid'],deviceid: records['recordsets'][0][i]['deviceid'],datapoint: records['recordsets'][0][i]['datapoint'],actualpoint: records['recordsets'][0][i]['actualpoint'], multiply: records['recordsets'][0][i]['multiply'],addition: records['recordsets'][0][i]['addition'],time: records['recordsets'][0][i]['dated'],type: records['recordsets'][0][i]['objtype'],instance: records['recordsets'][0][i]['objinstance']});
-      data.push({ datapointid: records['recordsets'][0][i]['datapointid'], deviceid: records['recordsets'][0][i]['deviceid'], pointid: records['recordsets'][0][i]['pointid'], actualpoint: records['recordsets'][0][i]['actualpoint'], multiply: records['recordsets'][0][i]['multiply'], addition: records['recordsets'][0][i]['addition'], time: records['recordsets'][0][i]['dated'], objtype: records['recordsets'][0][i]['objtype'], objinstance: records['recordsets'][0][i]['objinstance'], devicerecordid: records['recordsets'][0][i]['devicerecordid'] });
-      //DATA.    ({'recordid': row[0],'projname': row[1],'projdesc' : row[2],'countryname' : row[3],'countrydesc' : row[4],'cityname' : row[5],'citydesc' : row[6],'campusname' : row[7],'campusdesc' : row[8],'buildingname' : row[9],'buildingdesc' : row[10],'equipmentname' : row[11],'equipmenttype' : row[12],'subequipmentname' : row[13],'subequipmentdesc' : row[14]})
-    }
-    return res.status(200).json(records['recordsets'][0])
-  } catch (err) {
-    console.error('Error with SQL Server:', err);
-  } finally {
-    // Close the connection pool
-    pool.close();
-  }
-
-}
 /********************************************************************************************************************* */
 module.exports = {
 
@@ -1178,8 +1147,7 @@ module.exports = {
     getprojectfieldsforrules,
     getpointdescription,
     getruletimerrecord,
-    updateallruletimerrecord,
-    getdatapointsforrulesengine
+    updateallruletimerrecord
 
     
 }
