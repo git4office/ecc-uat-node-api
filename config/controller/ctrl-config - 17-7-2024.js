@@ -3131,8 +3131,8 @@ const postdatapoint = async (req, res) => {
               DPAddQueryForOldDevice += " INSERT INTO [" + dbName + "].ECCAnalytics.DataPoint ( deviceid, pointid,actualpoint,multiply,addition,dated,objtype,objinstance,devicerecordid,isenergyvalue) VALUES "
               DPAddQueryForOldDevice += "('" + devices[dvc]['deviceid'] + "','" + devices[dvc]['datapoint'][dp]['pointid'] + "','" + devices[dvc]['datapoint'][dp]['actualpoint'] + "','" + devices[dvc]['datapoint'][dp]['multiply'] + "','" + devices[dvc]['datapoint'][dp]['addition'] + "', CURRENT_TIMESTAMP, '" + devices[dvc]['datapoint'][dp]['objtype'] + "', '" + devices[dvc]['datapoint'][dp]['objinstance'] + "', " + existingDeviceIdWithRecordId[devices[dvc]['deviceid']] + ", '" + devices[dvc]['datapoint'][dp]['isenergyvalue'] + "');"
               //DpauditSQL = " insert into [" + dbName + "].[ECCAnalytics].[DataPointAudit] (datapointid,pointid, actualpoint,modifier,event,dated ) values((SELECT TOP (1) [datapointid]  FROM [" + dbName + "].[ECCAnalytics].[DataPoint] order by datapointid desc ), '"+devices[dvc]['datapoint'][dp]['pointid']+"','" + devices[dvc]['datapoint'][dp]['actualpoint'] + "','"+modifier+"', 'add', CURRENT_TIMESTAMP ); "
-              DpauditSQL = " insert into [" + dbName + "].[ECCAnalytics].[DataPointAudit] (datapointid,pointid, actualpoint,modifier,event,currentrecord,dated ) values((SELECT TOP (1) [datapointid]  FROM [" + dbName + "].[ECCAnalytics].[DataPoint] order by datapointid desc ), '"+devices[dvc]['datapoint'][dp]['pointid']+"','" + devices[dvc]['datapoint'][dp]['actualpoint'] + "','"+modifier+"', 'add', '" + devices[dvc]['datapoint'][dp]['actualpoint'] + "," + devices[dvc]['datapoint'][dp]['multiply'] + "," + devices[dvc]['datapoint'][dp]['addition'] + "," + devices[dvc]['datapoint'][dp]['objinstance'] + "," + devices[dvc]['datapoint'][dp]['objtype'] + "',CURRENT_TIMESTAMP ); "
-              DPAddQueryForOldDevice += DpauditSQL
+              //DpauditSQL = " insert into [" + dbName + "].[ECCAnalytics].[DataPointAudit] (datapointid,pointid, actualpoint,modifier,event,currentrecord,dated ) values((SELECT TOP (1) [datapointid]  FROM [" + dbName + "].[ECCAnalytics].[DataPoint] order by datapointid desc ), '"+devices[dvc]['datapoint'][dp]['pointid']+"','" + devices[dvc]['datapoint'][dp]['actualpoint'] + "','"+modifier+"', 'add', '" + devices[dvc]['datapoint'][dp]['actualpoint'] + "," + devices[dvc]['datapoint'][dp]['multiply'] + "," + devices[dvc]['datapoint'][dp]['addition'] + "," + devices[dvc]['datapoint'][dp]['objinstance'] + "," + devices[dvc]['datapoint'][dp]['objtype'] + "',CURRENT_TIMESTAMP ); "
+              //DPAddQueryForOldDevice += DpauditSQL
             }
           }
           //console.log(query3)
@@ -3158,8 +3158,8 @@ const postdatapoint = async (req, res) => {
               DPAddQueryForNewlyAddedDevice += " INSERT INTO [" + dbName + "].ECCAnalytics.DataPoint ( deviceid, pointid,actualpoint,multiply,addition,dated,objtype,objinstance,devicerecordid,isenergyvalue) VALUES "
               DPAddQueryForNewlyAddedDevice += "('" + devices[dvc]['deviceid'] + "','" + devices[dvc]['datapoint'][dp]['pointid'] + "','" + devices[dvc]['datapoint'][dp]['actualpoint'] + "','" + devices[dvc]['datapoint'][dp]['multiply'] + "','" + devices[dvc]['datapoint'][dp]['addition'] + "', CURRENT_TIMESTAMP, '" + devices[dvc]['datapoint'][dp]['objtype'] + "', '" + devices[dvc]['datapoint'][dp]['objinstance'] + "', " + newDeviceTblRecordId[arrayId] + ", '" + devices[dvc]['datapoint'][dp]['isenergyvalue'] + "');"
               //DpauditSQL = " insert into [" + dbName + "].[ECCAnalytics].[DataPointAudit] (datapointid,pointid, actualpoint,modifier,event,dated ) values((SELECT TOP (1) [datapointid]  FROM [" + dbName + "].[ECCAnalytics].[DataPoint] order by datapointid desc ), '"+devices[dvc]['datapoint'][dp]['pointid']+"','" + devices[dvc]['datapoint'][dp]['actualpoint'] + "','"+modifier+"', 'add', CURRENT_TIMESTAMP ); "
-              DpauditSQL = " insert into [" + dbName + "].[ECCAnalytics].[DataPointAudit] (datapointid,pointid, actualpoint,modifier,event,currentrecord,dated ) values((SELECT TOP (1) [datapointid]  FROM [" + dbName + "].[ECCAnalytics].[DataPoint] order by datapointid desc ), '"+devices[dvc]['datapoint'][dp]['pointid']+"','" + devices[dvc]['datapoint'][dp]['actualpoint'] + "','"+modifier+"', 'add', '" + devices[dvc]['datapoint'][dp]['actualpoint'] + "," + devices[dvc]['datapoint'][dp]['multiply'] + "," + devices[dvc]['datapoint'][dp]['addition'] + "," + devices[dvc]['datapoint'][dp]['objinstance'] + "," + devices[dvc]['datapoint'][dp]['objtype'] + "',CURRENT_TIMESTAMP ); "
-              DPAddQueryForNewlyAddedDevice += DpauditSQL
+             // DpauditSQL = " insert into [" + dbName + "].[ECCAnalytics].[DataPointAudit] (datapointid,pointid, actualpoint,modifier,event,currentrecord,dated ) values((SELECT TOP (1) [datapointid]  FROM [" + dbName + "].[ECCAnalytics].[DataPoint] order by datapointid desc ), '"+devices[dvc]['datapoint'][dp]['pointid']+"','" + devices[dvc]['datapoint'][dp]['actualpoint'] + "','"+modifier+"', 'add', '" + devices[dvc]['datapoint'][dp]['actualpoint'] + "," + devices[dvc]['datapoint'][dp]['multiply'] + "," + devices[dvc]['datapoint'][dp]['addition'] + "," + devices[dvc]['datapoint'][dp]['objinstance'] + "," + devices[dvc]['datapoint'][dp]['objtype'] + "',CURRENT_TIMESTAMP ); "
+              //DPAddQueryForNewlyAddedDevice += DpauditSQL
 
             }
           }
@@ -3185,7 +3185,7 @@ const postdatapoint = async (req, res) => {
               DPupdateQueryForNewlyAddedDevice += " UPDATE [" + dbName + "].[ECCAnalytics].[DataPoint] SET  deviceid = '" + devices[dvc]['deviceid'] + "', pointid = '" + devices[dvc]['datapoint'][dp]['pointid'] + "',actualpoint = '" + devices[dvc]['datapoint'][dp]['actualpoint'] + "',multiply = '" + devices[dvc]['datapoint'][dp]['multiply'] + "', addition ='" + devices[dvc]['datapoint'][dp]['addition'] + "', objtype = '" + devices[dvc]['datapoint'][dp]['objtype'] + "',objinstance = '" + devices[dvc]['datapoint'][dp]['objinstance'] + "',devicerecordid = " + newDeviceTblRecordId[arrayId] + " ,isenergyvalue = '" + devices[dvc]['datapoint'][dp]['isenergyvalue'] + "' where datapointid = " + devices[dvc]['datapoint'][dp]['datapointid'] + "; "
               //DpauditSQL = " insert into [" + dbName + "].[ECCAnalytics].[DataPointAudit] (datapointid,pointid, actualpoint,modifier,event,dated ) values('" + devices[dvc]['datapoint'][dp]['datapointid'] + "', '"+devices[dvc]['datapoint'][dp]['pointid']+"','" + devices[dvc]['datapoint'][dp]['actualpoint'] + "','"+modifier+"', 'update', CURRENT_TIMESTAMP ); "
               DpauditSQL = " insert into [" + dbName + "].[ECCAnalytics].[DataPointAudit] (datapointid,pointid, actualpoint,modifier,event,currentrecord,dated,previousrecord ) values('" + devices[dvc]['datapoint'][dp]['datapointid'] + "', '"+devices[dvc]['datapoint'][dp]['pointid']+"','" + devices[dvc]['datapoint'][dp]['actualpoint'] + "', "
-              DpauditSQL += " '"+modifier+"', 'update', '" + devices[dvc]['datapoint'][dp]['actualpoint'] + "," + devices[dvc]['datapoint'][dp]['multiply'] + "," + devices[dvc]['datapoint'][dp]['addition'] + "," + devices[dvc]['datapoint'][dp]['objinstance'] + "," + devices[dvc]['datapoint'][dp]['objtype'] + "',CURRENT_TIMESTAMP,"
+              DpauditSQL += " '"+modifier+"', 'update', CURRENT_TIMESTAMP,"
               DpauditSQL += " CONCAT((SELECT TOP (1) [pointid]  FROM  [" + dbName + "].[ECCAnalytics].[DataPoint] where datapointid = " + devices[dvc]['datapoint'][dp]['datapointid'] + ") , "
               DpauditSQL += "  ',',(SELECT TOP (1) [actualpoint]  FROM  [" + dbName + "].[ECCAnalytics].[DataPoint] where datapointid = " + devices[dvc]['datapoint'][dp]['datapointid'] + "), "
               DpauditSQL += "  ',',(SELECT TOP (1) [multiply]  FROM  [" + dbName + "].[ECCAnalytics].[DataPoint] where datapointid = " + devices[dvc]['datapoint'][dp]['datapointid'] + "), "
@@ -3193,7 +3193,7 @@ const postdatapoint = async (req, res) => {
               DpauditSQL += "  ',',(SELECT TOP (1) [objtype]  FROM [" + dbName + "].[ECCAnalytics].[DataPoint] where datapointid = " + devices[dvc]['datapoint'][dp]['datapointid'] + "), "
               DpauditSQL += "  ',',(SELECT TOP (1) [objinstance]  FROM  [" + dbName + "].[ECCAnalytics].[DataPoint] where datapointid = " + devices[dvc]['datapoint'][dp]['datapointid'] + "))  ); "
               
-              DPupdateQueryForNewlyAddedDevice += DpauditSQL
+             // DPupdateQueryForNewlyAddedDevice += DpauditSQL
 
             }
           }
@@ -3217,7 +3217,7 @@ const postdatapoint = async (req, res) => {
               DPupdateQueryForOldDevice += " UPDATE [" + dbName + "].[ECCAnalytics].[DataPoint] SET deviceid = '" + devices[dvc]['deviceid'] + "',  pointid = '" + devices[dvc]['datapoint'][dp]['pointid'] + "',actualpoint = '" + devices[dvc]['datapoint'][dp]['actualpoint'] + "',multiply = '" + devices[dvc]['datapoint'][dp]['multiply'] + "', addition ='" + devices[dvc]['datapoint'][dp]['addition'] + "', objtype = '" + devices[dvc]['datapoint'][dp]['objtype'] + "',objinstance = '" + devices[dvc]['datapoint'][dp]['objinstance'] + "',devicerecordid = " + existingDeviceIdWithRecordId[devices[dvc]['deviceid']] + ",isenergyvalue = '" + devices[dvc]['datapoint'][dp]['isenergyvalue'] + "' where datapointid = " + devices[dvc]['datapoint'][dp]['datapointid'] + "; "
              // DpauditSQL = " insert into [" + dbName + "].[ECCAnalytics].[DataPointAudit] (datapointid,pointid, actualpoint,modifier,event,dated ) values('" + devices[dvc]['datapoint'][dp]['datapointid'] + "', '"+devices[dvc]['datapoint'][dp]['pointid']+"','" + devices[dvc]['datapoint'][dp]['actualpoint'] + "','"+modifier+"', 'update', CURRENT_TIMESTAMP ); "
              DpauditSQL = " insert into [" + dbName + "].[ECCAnalytics].[DataPointAudit] (datapointid,pointid, actualpoint,modifier,event,currentrecord,dated,previousrecord ) values('" + devices[dvc]['datapoint'][dp]['datapointid'] + "', '"+devices[dvc]['datapoint'][dp]['pointid']+"','" + devices[dvc]['datapoint'][dp]['actualpoint'] + "', "
-             DpauditSQL += " '"+modifier+"', 'update', '" + devices[dvc]['datapoint'][dp]['actualpoint'] + "," + devices[dvc]['datapoint'][dp]['multiply'] + "," + devices[dvc]['datapoint'][dp]['addition'] + "," + devices[dvc]['datapoint'][dp]['objinstance'] + "," + devices[dvc]['datapoint'][dp]['objtype'] + "', CURRENT_TIMESTAMP,"
+             DpauditSQL += " '"+modifier+"', 'update', CURRENT_TIMESTAMP,"
              DpauditSQL += " CONCAT((SELECT TOP (1) [pointid]  FROM  [" + dbName + "].[ECCAnalytics].[DataPoint] where datapointid = " + devices[dvc]['datapoint'][dp]['datapointid'] + ") , "
              DpauditSQL += "  ',',(SELECT TOP (1) [actualpoint]  FROM  [" + dbName + "].[ECCAnalytics].[DataPoint] where datapointid = " + devices[dvc]['datapoint'][dp]['datapointid'] + "), "
              DpauditSQL += "  ',',(SELECT TOP (1) [multiply]  FROM  [" + dbName + "].[ECCAnalytics].[DataPoint] where datapointid = " + devices[dvc]['datapoint'][dp]['datapointid'] + "), "
@@ -3225,7 +3225,7 @@ const postdatapoint = async (req, res) => {
              DpauditSQL += "  ',',(SELECT TOP (1) [objtype]  FROM [" + dbName + "].[ECCAnalytics].[DataPoint] where datapointid = " + devices[dvc]['datapoint'][dp]['datapointid'] + "), "
              DpauditSQL += "  ',',(SELECT TOP (1) [objinstance]  FROM  [" + dbName + "].[ECCAnalytics].[DataPoint] where datapointid = " + devices[dvc]['datapoint'][dp]['datapointid'] + "))  ); "
 
-             DPupdateQueryForOldDevice += DpauditSQL
+            // DPupdateQueryForOldDevice += DpauditSQL
 
 
             }
@@ -3252,7 +3252,7 @@ const postdatapoint = async (req, res) => {
               DPAddQueryForOldDevice += "('" + devices[dvc]['deviceid'] + "','" + devices[dvc]['datapoint'][dp]['pointid'] + "','" + devices[dvc]['datapoint'][dp]['actualpoint'] + "','" + devices[dvc]['datapoint'][dp]['multiply'] + "','" + devices[dvc]['datapoint'][dp]['addition'] + "', CURRENT_TIMESTAMP, '" + devices[dvc]['datapoint'][dp]['objtype'] + "', '" + devices[dvc]['datapoint'][dp]['objinstance'] + "', " + existingDeviceIdWithRecordId[devices[dvc]['deviceid']] + ", '" + devices[dvc]['datapoint'][dp]['isenergyvalue'] + "');"
               //DpauditSQL = " insert into [" + dbName + "].[ECCAnalytics].[DataPointAudit] (datapointid,pointid, actualpoint,modifier,event,dated ) values((SELECT TOP (1) [datapointid]  FROM [" + dbName + "].[ECCAnalytics].[DataPoint] order by datapointid desc ), '"+devices[dvc]['datapoint'][dp]['pointid']+"','" + devices[dvc]['datapoint'][dp]['actualpoint'] + "','"+modifier+"', 'add', CURRENT_TIMESTAMP ); "
               DpauditSQL = " insert into [" + dbName + "].[ECCAnalytics].[DataPointAudit] (datapointid,pointid, actualpoint,modifier,event,currentrecord,dated ) values((SELECT TOP (1) [datapointid]  FROM [" + dbName + "].[ECCAnalytics].[DataPoint] order by datapointid desc ), '"+devices[dvc]['datapoint'][dp]['pointid']+"','" + devices[dvc]['datapoint'][dp]['actualpoint'] + "','"+modifier+"', 'add', '" + devices[dvc]['datapoint'][dp]['actualpoint'] + "," + devices[dvc]['datapoint'][dp]['multiply'] + "," + devices[dvc]['datapoint'][dp]['addition'] + "," + devices[dvc]['datapoint'][dp]['objinstance'] + "," + devices[dvc]['datapoint'][dp]['objtype'] + "',CURRENT_TIMESTAMP ); "
-              DPAddQueryForOldDevice += DpauditSQL
+              //DPAddQueryForOldDevice += DpauditSQL
 
             }
           }
@@ -3272,7 +3272,7 @@ const postdatapoint = async (req, res) => {
               DPupdateQueryForOldDevice += " UPDATE [" + dbName + "].[ECCAnalytics].[DataPoint] SET deviceid = '" + devices[dvc]['deviceid'] + "',  pointid = '" + devices[dvc]['datapoint'][dp]['pointid'] + "',actualpoint = '" + devices[dvc]['datapoint'][dp]['actualpoint'] + "',multiply = '" + devices[dvc]['datapoint'][dp]['multiply'] + "', addition ='" + devices[dvc]['datapoint'][dp]['addition'] + "', objtype = '" + devices[dvc]['datapoint'][dp]['objtype'] + "',objinstance = '" + devices[dvc]['datapoint'][dp]['objinstance'] + "',isenergyvalue = '" + devices[dvc]['datapoint'][dp]['isenergyvalue'] + "' where datapointid = " + devices[dvc]['datapoint'][dp]['datapointid'] + "; "
               //DpauditSQL = " insert into [" + dbName + "].[ECCAnalytics].[DataPointAudit] (datapointid,pointid, actualpoint,modifier,event,dated ) values('" + devices[dvc]['datapoint'][dp]['datapointid'] + "', '"+devices[dvc]['datapoint'][dp]['pointid']+"','" + devices[dvc]['datapoint'][dp]['actualpoint'] + "','"+modifier+"', 'update', CURRENT_TIMESTAMP ); "
               DpauditSQL = " insert into [" + dbName + "].[ECCAnalytics].[DataPointAudit] (datapointid,pointid, actualpoint,modifier,event,currentrecord,dated,previousrecord ) values('" + devices[dvc]['datapoint'][dp]['datapointid'] + "', '"+devices[dvc]['datapoint'][dp]['pointid']+"','" + devices[dvc]['datapoint'][dp]['actualpoint'] + "', "
-              DpauditSQL += " '"+modifier+"', 'update', '" + devices[dvc]['datapoint'][dp]['actualpoint'] + "," + devices[dvc]['datapoint'][dp]['multiply'] + "," + devices[dvc]['datapoint'][dp]['addition'] + "," + devices[dvc]['datapoint'][dp]['objinstance'] + "," + devices[dvc]['datapoint'][dp]['objtype'] + "', CURRENT_TIMESTAMP,"
+              DpauditSQL += " '"+modifier+"', 'update', CURRENT_TIMESTAMP,"
               DpauditSQL += " CONCAT((SELECT TOP (1) [pointid]  FROM  [" + dbName + "].[ECCAnalytics].[DataPoint] where datapointid = " + devices[dvc]['datapoint'][dp]['datapointid'] + ") , "
               DpauditSQL += "  ',',(SELECT TOP (1) [actualpoint]  FROM  [" + dbName + "].[ECCAnalytics].[DataPoint] where datapointid = " + devices[dvc]['datapoint'][dp]['datapointid'] + "), "
               DpauditSQL += "  ',',(SELECT TOP (1) [multiply]  FROM  [" + dbName + "].[ECCAnalytics].[DataPoint] where datapointid = " + devices[dvc]['datapoint'][dp]['datapointid'] + "), "
@@ -3280,7 +3280,7 @@ const postdatapoint = async (req, res) => {
               DpauditSQL += "  ',',(SELECT TOP (1) [objtype]  FROM [" + dbName + "].[ECCAnalytics].[DataPoint] where datapointid = " + devices[dvc]['datapoint'][dp]['datapointid'] + "), "
               DpauditSQL += "  ',',(SELECT TOP (1) [objinstance]  FROM  [" + dbName + "].[ECCAnalytics].[DataPoint] where datapointid = " + devices[dvc]['datapoint'][dp]['datapointid'] + "))  ); "
 
-              DPupdateQueryForOldDevice += DpauditSQL
+             // DPupdateQueryForOldDevice += DpauditSQL
 
             }
           }
