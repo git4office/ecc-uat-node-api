@@ -4225,14 +4225,16 @@ const addequipmentvariableopration = async (req, res) => {
     await sql.connect(config)
 
     var request = new sql.Request();
+    equipmentVariableQueryForNull = ""
+    equipmentVariableQueryForNotNull = ""
     equipmentVariableQuery = ""
     auditQuery = ""
     for (i = 0; i < equipmentvariabledata.length; i++) {
       if (equipmentvariabledata[i].recordid == null) {
         equipmentVariableQuery += "insert into [" + dbName + "].[ECCAnalytics].[EquipmentVariables_Operation]  (evarid,linkedptid,projectrecordid,equipmentname,evarvalue,isenergyvalue,dated) values ('" + equipmentvariabledata[i].evarid + "','" + equipmentvariabledata[i].linkedptid + "','" + equipmentvariabledata[i].projectrecordid + "','" + equipmentvariabledata[i].equipmentname + "','" + equipmentvariabledata[i].evarvalue + "','" + equipmentvariabledata[i].isenergyvalue + "', CURRENT_TIMESTAMP); "
         //auditData += equipmentvariabledata[i].evarvalue+", " 
-        auditQuery += " INSERT INTO [" + dbName + "].ECCAnalytics.EquipmentVarOperationAudit (evarid,equipmentname,linkedptid,event,currentrecord,dated,modifier) VALUES ('" + equipmentvariabledata[i].evarid + "','" + equipmentvariabledata[i].equipmentname + "', '" + equipmentvariabledata[i].linkedptid + "','add','" + equipmentvariabledata[i].evarvalue + "',CURRENT_TIMESTAMP,'" + modifier + "'); "
-        equipmentVariableQuery += auditQuery
+        equipmentVariableQuery += " INSERT INTO [" + dbName + "].ECCAnalytics.EquipmentVarOperationAudit (evarid,equipmentname,linkedptid,event,currentrecord,dated,modifier) VALUES ('" + equipmentvariabledata[i].evarid + "','" + equipmentvariabledata[i].equipmentname + "', '" + equipmentvariabledata[i].linkedptid + "','add','" + equipmentvariabledata[i].evarvalue + "',CURRENT_TIMESTAMP,'" + modifier + "'); "
+        //equipmentVariableQueryForNull += auditQuery
 
       } else {
         equipmentVariableQuery += " INSERT INTO [" + dbName + "].ECCAnalytics.EquipmentVarOperationAudit (evarid,equipmentname,linkedptid,event,previousrecord,currentrecord,dated,modifier) VALUES ('" + equipmentvariabledata[i].evarid + "','" + equipmentvariabledata[i].equipmentname + "', '" + equipmentvariabledata[i].linkedptid + "','update',(SELECT [evarvalue]  FROM [" + dbName + "].[ECCAnalytics].[EquipmentVariables_Operation] where  recordid = '" + equipmentvariabledata[i].recordid + "'), '" + equipmentvariabledata[i].evarvalue + "',CURRENT_TIMESTAMP,'" + modifier + "'); "
@@ -4242,9 +4244,9 @@ const addequipmentvariableopration = async (req, res) => {
 
       }
     }
-    // console.error(auditQuery);
-
-    //equipmentVariableQuery += auditQuery
+     
+    //equipmentVariableQuery += equipmentVariableQueryForNull+ equipmentVariableQueryForNotNull
+    console.log(equipmentVariableQuery);
 
     await request.query(equipmentVariableQuery)
 
