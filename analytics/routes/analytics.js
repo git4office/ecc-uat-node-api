@@ -2,9 +2,9 @@ const express = require('express');
 const sql = require('mssql/msnodesqlv8');
 
 const router = express.Router();
-const {tasklist,taskDetailsByAlarmId,alarmdata,test,alarmfilterdata,closealarm,addtask,taskfilterdata,cityforcombo,campusforcombo,buildingforcombo,countryforcombo,citycampus,avgdatapointvalue,closetask,buildingname,equipmentname,email,addalarmdata}  = require('../controller/ctrl-ana');
+const {tasklist,taskDetailsByAlarmId,alarmdata,test,alarmfilterdata,closealarm,addtask,taskfilterdata,cityforcombo,campusforcombo,buildingforcombo,countryforcombo,citycampus,avgdatapointvalue,closetask,buildingname,equipmentname,email}  = require('../controller/ctrl-ana');
 const {getcalculation,dashboardlogin,dashboardlogout,avgdpval}  = require('../controller/ctrl-ana');
-const {getbuildingvariablevalue} = require('../controller/ctrl-ana');
+const {getbuildingvariablevalue,devicestatus,escalationalarm,useraudit,projectaudit} = require('../controller/ctrl-ana');
 
 
 
@@ -26,12 +26,16 @@ router.get('/ecc/v1/avgdatapointvalue',avgdatapointvalue)
 router.get('/ecc/v1/buildingname',buildingname)
 router.get('/ecc/v1/equipmentname',equipmentname)
 router.get('/ecc/v1/email',email)
-router.post('/ecc/v1/addalarmdata',addalarmdata)
+//router.post('/ecc/v1/addalarmdata',addalarmdata)
 router.get('/ecc/v1/getcalculation',getcalculation)
 router.post('/ecc/v1/dashboardlogin',dashboardlogin)
 router.get('/ecc/v1/dashboardlogout',dashboardlogout)
 router.get('/ecc/v1/avgdpval',avgdpval)
 router.get('/ecc/v1/getbuildingvariablevalue',getbuildingvariablevalue)
+router.post('/ecc/v1/devicestatus',devicestatus)
+router.get('/ecc/v1/escalationalarm',escalationalarm)
+router.get('/ecc/v1/useraudit',useraudit)
+router.get('/ecc/v1/projectaudit',projectaudit)
 
 
 

@@ -135,7 +135,8 @@ const addalarmdata = async (req, res) => {
     query = " INSERT INTO [" + dbName + "].[ECCAnalytics].[Alarm] ([datapointrecordid],[ruleid],[deviceid],[analysisname],[analyticsummary],[measuretype],[alarmstatus],[buildingname],[alarmontimestamp],[escalationstage],[ruleno],[equipmentname]) VALUES (" + datapointrecordid + ",'" + ruleid + "','" + deviceid + "','" + analysisname + "','" + analyticsummary + "','" + measuretype + "'," + alarmstatus + ",'" + building + "',CURRENT_TIMESTAMP,'" + escalationstage + "','" + ruleno + "','" + equipmentname + "'); "
 
     //query = "INSERT INTO [" + dbName + "].[ECCAnalytics].[Alarm_History] ([datapointrecordid],[ruleid],[deviceid],[analysisname],[analyticsummary],[measuretype],[costavoided],[energysaved],[alarmstatus],[alarmontimestamp],[escalationstage],[buildingname],[taskstatus],[ruleno],[equipmentname],[historyddate],[modifier]) VALUES (" + datapointrecordid + ",'" + ruleid + "','" + deviceid + "','" + analysisname + "','" + analyticsummary + "','" + measuretype + "','costavoided', 'energysaved'," + alarmstatus + ",CURRENT_TIMESTAMP,'" + escalationstage + "','" + building + "','[taskstatus]','" + ruleno + "','" + equipmentname + "','historyddate','modifier');"
-    query += " INSERT INTO [" + dbName + "].[ECCAnalytics].[Alarm_History] ([datapointrecordid],[ruleid],[deviceid],[analysisname],[analyticsummary],[measuretype],[alarmstatus],[alarmontimestamp],[escalationstage],[buildingname],[taskstatus],[ruleno],[equipmentname],[historyddate],[modifier]) VALUES (" + datapointrecordid + ",'" + ruleid + "','" + deviceid + "','" + analysisname + "','" + analyticsummary + "','" + measuretype + "'," + alarmstatus + ",CURRENT_TIMESTAMP,'" + escalationstage + "','" + building + "',0,'" + ruleno + "','" + equipmentname + "',CURRENT_TIMESTAMP,'SYSTEM');"
+    //query += " INSERT INTO [" + dbName + "].[ECCAnalytics].[Alarm_History] ([datapointrecordid],[ruleid],[deviceid],[analysisname],[analyticsummary],[measuretype],[alarmstatus],[alarmontimestamp],[escalationstage],[buildingname],[taskstatus],[ruleno],[equipmentname],[historydate],[modifier]) VALUES (" + datapointrecordid + ",'" + ruleid + "','" + deviceid + "','" + analysisname + "','" + analyticsummary + "','" + measuretype + "'," + alarmstatus + ",CURRENT_TIMESTAMP,'" + escalationstage + "','" + building + "',0,'" + ruleno + "','" + equipmentname + "',CURRENT_TIMESTAMP,'SYSTEM');"
+    query += " INSERT INTO [" + dbName + "].[ECCAnalytics].[Alarm_History] ([alarmid],[datapointrecordid],[ruleid],[deviceid],[analysisname],[analyticsummary],[measuretype],[alarmstatus],[alarmontimestamp],[escalationstage],[buildingname],[taskstatus],[ruleno],[equipmentname],[historydate],[modifier]) VALUES ((SELECT TOP (1) [alarmid] FROM [" + dbName + "].[ECCAnalytics].[Alarm] order by alarmid desc )," + datapointrecordid + ",'" + ruleid + "','" + deviceid + "','" + analysisname + "','" + analyticsummary + "','" + measuretype + "'," + alarmstatus + ",CURRENT_TIMESTAMP,'" + escalationstage + "','" + building + "',0,'" + ruleno + "','" + equipmentname + "',CURRENT_TIMESTAMP,'SYSTEM');"
     await request.query(query)
 
 
@@ -353,7 +354,7 @@ const totaldatapoints = (req, res) => {
 
 
 
-const postdatapointvalue = (req, res) => {
+const postdatapointvalue_29_07_2024 = (req, res) => {
   console.log(req.originalUrl);
 
   //  dic =  req.body.ruleid
@@ -392,9 +393,54 @@ const postdatapointvalue = (req, res) => {
 }
 
 
+const postdatapointvalue = async (req, res) => {
+  console.log(req.originalUrl)
+  dbName = config.databse
+  const pool = new sql.ConnectionPool(config);
+
+  try {
+    await pool.connect();
+    const request = pool.request();
+
+    qry2Values = ""
+    count = 0
+    sqlPart = 1
+    for (const dic of req.body.data) {
+      count++;
+      //qry2Values+="('"+dic['datapointid']+"', '"+dic['deviceid']+"', '"+dic['datapoint']+"', '"+dic['datapointvalue']+"', CURRENT_TIMESTAMP,'"+dic['units']+"'),"
+      qry2Values += "('" + dic['datapointid'] + "', '" + dic['deviceid'] + "', '" + dic['pointid'] + "','" + dic['datapointvalue'] + "', CURRENT_TIMESTAMP),"
+      if (count >= 900) {
+        var qry = "INSERT INTO [" + dbName + "].[ECCAnalytics].DataPointValue ( datapointid,deviceid,pointid,datapointvalue,dated) VALUES " + qry2Values
+
+        qry = qry.substring(0, qry.length - 1);
+        await request.query(qry)
+        qry2Values = ""
+
+      } else {
+        var qry = "INSERT INTO [" + dbName + "].[ECCAnalytics].DataPointValue ( datapointid,deviceid,pointid,datapointvalue,dated) VALUES " + qry2Values
+
+        qry = qry.substring(0, qry.length - 1);
+        await request.query(qry)
+        qry2Values = ""
+
+      }
+
+    }
+
+
+    return res.status(200).json({ 'status': 'success' })
+  } catch (err) {
+    console.error('Error with SQL Server:', err);
+  } finally {
+    // Close the connection pool
+    pool.close();
+  }
+
+}
+
 /*888888888********/
 
-function callingAddrule(ruleid, equipmentid, associatedequipmentid, analysisid, duration, escalationduration, pointsconsidered, alarm, recommendations, measure, priority, multiplicationfactor) {
+function callingAddrule_4_10_2024(ruleid, equipmentid, associatedequipmentid, analysisid, duration, escalationduration, pointsconsidered, alarm, recommendations, measure, priority, multiplicationfactor) {
 
 
   sql.connect(config, function (err) {
@@ -453,6 +499,64 @@ function callingAddrule(ruleid, equipmentid, associatedequipmentid, analysisid, 
 
 }
 
+function callingAddrule(ruleid, equipmentid, associatedequipmentid, analysisid, duration, escalationduration, pointsconsidered, alarm, recommendations, measure, priority, multiplicationfactor, pointids) {
+
+
+  sql.connect(config, function (err) {
+    if (err) conole.log(err)
+
+    var request = new sql.Request();
+    // for(;i<req.body.data.length; i++){
+    chkquery = "SELECT  [ruleid] FROM [" + dbName + "].[ECCAnalytics].[Rules] where ruleid ='" + ruleid + "';"
+    // chkquery = "SELECT  [ruleid] FROM ["+dbName+"].[ECCAnalytics].[Rules] where ruleid ='"+req.body.data[i].ruleid+"';"
+
+
+    request.query(chkquery, function (err, records) {
+      if (err)
+        console.log(err);
+      else {
+        if (records['recordsets'][0].length == 0) {
+          //return res.status(200).json('User exists')
+
+          query2 = "INSERT INTO [" + dbName + "].[ECCAnalytics].Rules ([ruleid],[equipmentid],[associatedequipmentid],[analysisid],[duration],[escalationduration],[pointsconsidered],[alarm],[recommendations],[measure],[priority],[multiplicationfactor],[pointid]) VALUES ('" + ruleid + "','" + equipmentid + "','" + associatedequipmentid + "','" + analysisid + "','" + duration + "','" + escalationduration + "','" + pointsconsidered + "','" + alarm + "','" + recommendations + "','" + measure + "','" + priority + "','" + multiplicationfactor + "','" + pointids + "')"
+          //query2 = "INSERT INTO ["+dbName+"].[ECCAnalytics].Rules ([ruleid],[equipmentid],[associatedequipmentid],[analysisid],[duration],[escalationduration],[pointsconsidered],[alarm],[recommendations],[measure],[priority],[multiplicationfactor]) VALUES ('"+req.body.data[i].ruleid+"','"+req.body.data[i].equipmentid+"','"+req.body.data[i].associatedequipmentid+"','"+req.body.data[i].analysisid+"','"+req.body.data[i].duration+"','"+req.body.data[i].escalationduration+"','"+req.body.data[i].pointsconsidered+"','"+req.body.data[i].alarm+"','"+req.body.data[i].recommendations+"','"+req.body.data[i].measure+"','"+req.body.data[i].priority+"','"+req.body.data[i].multiplicationfactor+"')"
+          request.query(query2, function (err, records) {
+            if (err)
+              console.log(query2);
+            else {
+              console.log(query2);
+
+              return 1
+            }
+          }
+          )
+        }
+        else {
+          // query2 = "update ["+dbName+"].ECCAnalytics.Rules set  [equipmentid]='"+req.body.data[i].equipmentid+"',[associatedequipmentid]='"+req.body.data[i].associatedequipmentid+"',[analysisid]='"+req.body.data[i].analysisid+"',[duration]='"+req.body.data[i].duration+"',[escalationduration]='"+req.body.data[i].escalationduration+"',[pointsconsidered]='"+req.body.data[i].pointsconsidered+"',[alarm]='"+req.body.data[i].alarm+"',[recommendations]='"+req.body.data[i].recommendations+"',[measure]='"+req.body.data[i].measure+"',[priority]='"+req.body.data[i].priority+"',[multiplicationfactor]='"+req.body.data[i].multiplicationfactor+"' where [ruleid]='"+req.body.data[i].ruleid+"'"
+          query2 = "update [" + dbName + "].ECCAnalytics.Rules set  [equipmentid]='" + equipmentid + "',[associatedequipmentid]='" + associatedequipmentid + "',[analysisid]='" + analysisid + "',[duration]='" + duration + "',[escalationduration]='" + escalationduration + "',[pointsconsidered]='" + pointsconsidered + "',[alarm]='" + alarm + "',[recommendations]='" + recommendations + "',[measure]='" + measure + "',[priority]='" + priority + "',[multiplicationfactor]='" + multiplicationfactor + "', [pointid] = '" + pointids + "' where [ruleid]='" + ruleid + "'"
+          request.query(query2, function (err, records) {
+            if (err)
+              console.log(err);
+            else {
+              console.log(query2);
+
+              return 2
+            }
+          }
+          )
+        }
+
+
+      }
+
+
+    })
+    // }
+    //  return res.status(200).json('completed')
+
+  })
+
+}
 
 function callingUpdaterule(ruleid, equipmentid, associatedequipmentid, analysisid, duration, escalationduration, pointsconsidered, alarm, recommendations, measure, priority, multiplicationfactor) {
 
@@ -515,7 +619,7 @@ function callingUpdaterule(ruleid, equipmentid, associatedequipmentid, analysisi
 }
 
 /************************** */
-const addrules = (req, res) => {
+const addrules_4_10_2024 = (req, res) => {
   console.log(req.originalUrl);
   let i = 0;
 
@@ -650,10 +754,54 @@ const addrules = (req, res) => {
 
 }
 
+const addrules = (req, res) => {
+  console.log(req.originalUrl);
+  let i = 0;
+
+  data = req.body.data;
+  //console.log(req.body.data.length);
+  //console.log(req.body.data[0].ruleid);
+
+  ruleid = req.body.data[0].ruleid
+  equipmentid = req.body.data[0].equipmentid
+  associatedequipmentid = req.body.data[0].associatedequipmentid
+  analysisid = req.body.data[0].analysisid
+  duration = req.body.data[0].duration
+  escalationduration = req.body.data[0].escalationduration
+  pointsconsidered = req.body.data[0].pointsconsidered
+  alarm = req.body.data[0].alarm
+  recommendations = req.body.data[0].recommendations
+  measure = req.body.data[0].measure
+  priority = req.body.data[0].priority
+  multiplicationfactor = req.body.data[0].multiplicationfactor
+
+
+  for (; i < req.body.data.length; i++) {
+    ruleid = req.body.data[i].ruleid
+    equipmentid = req.body.data[i].equipmentid
+    associatedequipmentid = req.body.data[i].associatedequipmentid
+    analysisid = req.body.data[i].analysisid
+    duration = req.body.data[i].duration
+    escalationduration = req.body.data[i].escalationduration
+    pointsconsidered = req.body.data[i].pointsconsidered
+    alarm = req.body.data[i].alarm
+    recommendations = req.body.data[i].recommendations
+    measure = req.body.data[i].measure
+    priority = req.body.data[i].priority
+    multiplicationfactor = req.body.data[i].multiplicationfactor
+    pointids = req.body.data[i].pointid // added later on 30-9-2024
+
+    //callingAddrule(ruleid, equipmentid, associatedequipmentid, analysisid, duration, escalationduration, pointsconsidered, alarm, recommendations, measure, priority, multiplicationfactor)
+    callingAddrule(ruleid, equipmentid, associatedequipmentid, analysisid, duration, escalationduration, pointsconsidered, alarm, recommendations, measure, priority, multiplicationfactor, pointids)
+  }
+
+  return res.status(200).json('done')
+
+}
 
 
 
-const getinputdatapointvalue = (req, res) => {
+const getinputdatapointvalue_22_7_2024 = (req, res) => {
   console.log(req.originalUrl);
 
   // var num = "100";
@@ -687,9 +835,40 @@ const getinputdatapointvalue = (req, res) => {
 }
 
 
+const getinputdatapointvalue = async (req, res) => {
+  console.log(req.originalUrl)
+  dbName = config.databse
+  const pool = new sql.ConnectionPool(config);
+  // var num = "100";
+  if (typeof req.query.num !== 'undefined')
+    num = req.query.num;
 
 
-const getalarmdata = (req, res) => {
+  try {
+    await pool.connect();
+    const request = pool.request();
+
+    topResultQuery = "SELECT count(*) as total FROM [" + dbName + "].[ECCAnalytics].DataPoint WHERE DATEDIFF(HOUR, dated, GETDATE()) > 24"
+    topResult = await request.query(topResultQuery)
+    count = topResult['recordsets'][0][0]['total']
+    //query = "SELECT TOP (SELECT count(*) FROM [" + dbName + "].[ECCAnalytics].DataPoint WHERE DATEDIFF(HOUR, dated, GETDATE()) > 24) datapointrecordid,datapointid,deviceid,pointid,datapointvalue,dated FROM [" + dbName + "].[ECCAnalytics].DataPointValue ORDER BY dated DESC;"
+    query = "SELECT TOP (" + count + ") datapointrecordid,datapointid,deviceid,pointid,datapointvalue,dated FROM [" + dbName + "].[ECCAnalytics].DataPointValue ORDER BY dated DESC;"
+    console.log(query)
+    records = await request.query(query)
+
+    return res.status(200).json(records['recordsets'][0])
+  } catch (err) {
+    console.error('Error with SQL Server:', err);
+  } finally {
+    // Close the connection pool
+    pool.close();
+  }
+
+}
+
+
+
+const getalarmdata_1 = (req, res) => {
   var rl = req.query.rl
   //var dv = req.query.dv
   var eqpname = req.query.eqpname // updated on 27.8.24 as per sumaya
@@ -703,12 +882,42 @@ const getalarmdata = (req, res) => {
     var request = new sql.Request();
 
     //query = "SELECT TOP 1 alarmid,datapointrecordid,ruleid,deviceid,analysisname,analyticsummary,measuretype,costavoided,energysaved,alarmstatus,alarmontimestamp,alarmofftimestamp,escalationstage FROM ["+dbName+"].[ECCAnalytics].Alarm where ruleid = '"+ rl +"' and deviceid = '"+ dv +"' ORDER BY alarmontimestamp DESC;"
-    query = "SELECT TOP 1 alarmid,datapointrecordid,ruleid,deviceid,analysisname,analyticsummary,measuretype,costavoided,energysaved,alarmstatus,alarmontimestamp,alarmofftimestamp,escalationstage FROM [" + dbName + "].[ECCAnalytics].Alarm where ruleid = '" + rl + "' and equipmentname = '" + eqpname + "' ORDER BY alarmontimestamp DESC;"
+    //query = "SELECT TOP 1 alarmid,datapointrecordid,ruleid,deviceid,analysisname,analyticsummary,measuretype,costavoided,energysaved,alarmstatus,alarmontimestamp,alarmofftimestamp,escalationstage FROM [" + dbName + "].[ECCAnalytics].Alarm where ruleid = '" + rl + "' and equipmentname = '" + eqpname + "' ORDER BY alarmontimestamp DESC;"
+
+    query = "SELECT TOP 1 alarmid,alarmstatus,taskstatus,escalationstage FROM [" + dbName + "].[ECCAnalytics].Alarm where ruleid = '" + rl + "' and equipmentname = '" + eqpname + "' ORDER BY alarmontimestamp DESC;"
+
+
     request.query(query, function (err, records) {
       if (err)
         console.log(err);
       else {
 
+        if (records['recordsets'][0][0]['alarmstatus'] == 1) {
+          if (records['recordsets'][0][0]['taskstatus'] == 1) {
+
+            query1 = "SELECT taskid,taskname,taskpriority,taskassigneddate,taskassignedemail FROM [" + dbName + "].[ECCAnalytics].Task where alarmid = '" + records['recordsets'][0][0]['alarmid'] + "';"
+            request.query(query1, function (err, records1) {
+              if (err)
+                console.log(err);
+              else {
+                console.log("query1");
+                var data = [];
+                data.push = ({
+                  alarmstatus: records['recordsets'][0][0]['alarmstatus'], escalationstage: records['recordsets'][0][0]['escalationstage'],
+                  taskid: records1['recordsets'][0][0]['taskid'], taskname: records1['recordsets'][0][0]['taskname'], taskpriority: records1['recordsets'][0][0]['taskpriority'],
+                  taskassigneddate: records1['recordsets'][0][0]['taskassigneddate'], taskassignedemail: records1['recordsets'][0][0]['taskassignedemail']
+                });
+                console.log(data);
+                return res.status(200).json(data)
+
+              }
+            })
+          }
+          else {
+            return res.status(200).json(records['recordsets'][0])
+          }
+
+        }
         return res.status(200).json(records['recordsets'][0])
       }
 
@@ -718,6 +927,73 @@ const getalarmdata = (req, res) => {
   })
 }
 
+const getalarmdata = (req, res) => {
+  var rl = req.query.rl;
+  var eqpname = req.query.eqpname;
+
+  sql.connect(config, function (err) {
+    if (err) {
+      console.log(err);
+      return res.status(500).json({ error: "Database connection error" });
+    }
+
+    var request = new sql.Request();
+
+    // Query to get alarm data
+    var query = "SELECT TOP 1 alarmid,alarmstatus,taskstatus,alarmontimestamp,escalationstage FROM [" + dbName + "].[ECCAnalytics].Alarm where ruleid = '" + rl + "' and equipmentname = '" + eqpname + "' ORDER BY alarmontimestamp DESC;";
+
+    request.query(query, function (err, records) {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({ error: "Query execution error" });
+      }
+
+      if (records.recordsets.length > 0 && records.recordsets[0].length > 0) {
+        var alarmRecord = records.recordsets[0][0];
+
+        // If alarmstatus is 1
+        if (alarmRecord.alarmstatus == 1) {
+          // If taskstatus is 1
+          if (alarmRecord.taskstatus == 1) {
+            // Query to get task data
+            var query1 = "SELECT taskid,taskname,taskpriority,taskassigneddate,taskassignedemail FROM [" + dbName + "].[ECCAnalytics].Task where alarmid = '" + alarmRecord.alarmid + "';";
+            request.query(query1, function (err, records1) {
+              if (err) {
+                console.log(err);
+                return res.status(500).json({ error: "Task query execution error" });
+              }
+
+              if (records1.recordsets.length > 0 && records1.recordsets[0].length > 0) {
+                var taskRecord = records1.recordsets[0][0];
+                var data = [{
+                  alarmstatus: alarmRecord.alarmstatus,
+                  escalationstage: alarmRecord.escalationstage,
+                  taskid: taskRecord.taskid,
+                  taskname: taskRecord.taskname,
+                  taskpriority: taskRecord.taskpriority,
+                  alarmontimestamp: alarmRecord.alarmontimestamp,
+                  taskassigneddate: taskRecord.taskassigneddate,
+                  taskassignedemail: taskRecord.taskassignedemail
+                }];
+                return res.status(200).json(data);
+              } else {
+                return res.status(404).json({ error: "No task data found" });
+              }
+            });
+          } else {
+            // Return alarm data if taskstatus is not 1
+            return res.status(200).json(records['recordsets'][0]);
+          }
+        } else {
+          // Return alarm data if alarmstatus is not 1
+          return res.status(200).json(records['recordsets'][0]);
+        }
+      } else {
+        return res.status(404).json({ error: "No alarm data found" });
+      }
+    });
+  });
+};
 
 
 const getescalation = (req, res) => {
@@ -761,12 +1037,17 @@ const updateescalationstage = (req, res) => {
 
   escalationstage = req.body.escalationstage
 
-  var rl = req.query.rl
-  var dv = req.query.dv
+  // var rl = req.query.rl
+  // var dv = req.query.dv
+
+
+  var taskid = req.query.taskid
 
   //sql = "INSERT INTO ECCAnalytics.Alarm (datapointrecordid,ruleid,deviceid,analysisname,analyticsummary,measuretype,alarmstatus,buildingname,alarmontimestamp,escalationstage,ruleno) VALUES ("+datapointrecordid+",'"+ruleid+"','"+deviceid+"','"+analysisname+"','"+analyticsummary+"','"+measuretype+"',"+alarmstatus+",'"+buildingname+"',CURRENT_TIMESTAMP,'"+escalationstage+"','"+ruleno+"');"
   //query = "INSERT INTO [ECCDB].[ECCAnalytics].[Alarm] ([datapointrecordid],[ruleid],[deviceid],[analysisname],[analyticsummary],[measuretype],[alarmstatus],[buildingname],[alarmontimestamp],[escalationstage],[ruleno]) VALUES ("+datapointrecordid+",'"+ruleid+"','"+deviceid+"','"+analysisname+"','"+analyticsummary+"','"+measuretype+"',"+alarmstatus+",'"+building+"',CURRENT_TIMESTAMP,'"+escalationstage+"','"+ruleno+"');"
-  query = "UPDATE [" + dbName + "].[ECCAnalytics].Alarm  set escalationstage = '" + escalationstage + "' where ruleid = '" + rl + "' and deviceid = '" + dv + "'"
+  //query = "UPDATE [" + dbName + "].[ECCAnalytics].Alarm  set escalationstage = '" + escalationstage + "' where ruleid = '" + rl + "' and deviceid = '" + dv + "'"
+
+  query = "UPDATE [" + dbName + "].[ECCAnalytics].Task  set escalationstage = '" + escalationstage + "' where taskid = '" + taskid + "'"
 
 
   sql.connect(config, function (err) {
@@ -1017,7 +1298,7 @@ const getprojectfieldsforrules = (req, res) => {
 
     //make the query
 
-    var query = "SELECT recordid,buildingname,equipmentname,equipmentid,associatedequipid  FROM  [" + dbName + "].[ECCAnalytics].[Project]"
+    var query = "SELECT recordid,cityname,campusname,buildingname,equipmentname,equipmentid,associatedequipid  FROM  [" + dbName + "].[ECCAnalytics].[Project]"
 
 
     request.query(query, function (err, records) {
@@ -1186,14 +1467,14 @@ const updateallruletimerrecord = async (req, res) => {
       sqlQuery += " BEGIN "
 
       sqlQuery += " UPDATE [" + dbName + "].[ECCAnalytics].[Ruletimer] "
-      sqlQuery += "  SET timer = '" + newRecordList[firstcount].timer + "', equipment =  '" + newRecordList[firstcount].equipment + "' "
+      sqlQuery += "  SET timer = '" + newRecordList[firstcount].timer + "', equipment =  '" + newRecordList[firstcount].equipment + "', [escalation1] = " + newRecordList[firstcount].escalation1 + ",[escalation2] = " + newRecordList[firstcount].escalation2 + ",[escalation3] = " + newRecordList[firstcount].escalation3 + ""
       sqlQuery += " WHERE workflowname = '" + newRecordList[firstcount].workflowname + "' and projectrecordid = '" + newRecordList[firstcount].projectrecordid + "'; "
       sqlQuery += " END "
       sqlQuery += " ELSE "
       sqlQuery += " BEGIN "
 
-      sqlQuery += " INSERT INTO [" + dbName + "].[ECCAnalytics].[Ruletimer] (equipment, workflowname, timer,projectrecordid) "
-      sqlQuery += " VALUES ('" + newRecordList[firstcount].equipment + "', '" + newRecordList[firstcount].workflowname + "', '" + newRecordList[firstcount].timer + "','" + newRecordList[firstcount].projectrecordid + "'); "
+      sqlQuery += " INSERT INTO [" + dbName + "].[ECCAnalytics].[Ruletimer] (equipment, workflowname, timer,projectrecordid,[escalation1],[escalation2],[escalation3]) "
+      sqlQuery += " VALUES ('" + newRecordList[firstcount].equipment + "', '" + newRecordList[firstcount].workflowname + "', '" + newRecordList[firstcount].timer + "','" + newRecordList[firstcount].projectrecordid + "',0,0,0); "
       sqlQuery += " END; "
 
     }
@@ -1210,6 +1491,11 @@ const updateallruletimerrecord = async (req, res) => {
   }
 
 }
+
+
+
+
+
 
 
 const getdatapointsforrulesengine = async (req, res) => {
@@ -1280,6 +1566,117 @@ const geteqvariablesforrulesengine = async (req, res) => {
 }
 
 
+const alarmescalationmatrix1 = async (req, res) => {
+  console.log(req.originalUrl)
+  dbName = config.databse
+  const pool = new sql.ConnectionPool(config);
+
+  city = req.query.ct
+  campus = req.query.cm
+
+
+  try {
+
+    await pool.connect();
+
+    const request = pool.request();
+
+    city = req.query.ct
+    campus = req.query.cm
+
+    query = "SELECT  escalation1 FROM  [" + dbName + "].[ECCAnalytics].[AlarmEscalationMatrix1] where city = '" + city + "' and campus = '" + campus + "' ;"
+
+    records = await request.query(query)
+
+    return res.status(200).json(records['recordsets'][0])
+
+
+  } catch (err) {
+
+    console.error('Error with SQL Server:', err);
+
+  } finally {
+
+    // Close the connection pool
+
+    pool.close();
+  }
+
+
+}
+
+const alarmescalationmatrix2 = async (req, res) => {
+  console.log(req.originalUrl)
+  dbName = config.databse
+  const pool = new sql.ConnectionPool(config);
+
+
+  try {
+
+    await pool.connect();
+
+    const request = pool.request();
+
+    city = req.query.ct
+    campus = req.query.cm
+
+    query = "SELECT  escalation2 FROM  [" + dbName + "].[ECCAnalytics].[AlarmEscalationMatrix2] where city = '" + city + "' and campus = '" + campus + "' ;"
+
+    records = await request.query(query)
+
+    return res.status(200).json(records['recordsets'][0])
+
+
+  } catch (err) {
+
+    console.error('Error with SQL Server:', err);
+
+  } finally {
+
+    // Close the connection pool
+
+    pool.close();
+  }
+
+
+}
+
+
+const alarmescalationmatrix3 = async (req, res) => {
+  console.log(req.originalUrl)
+  dbName = config.databse
+  const pool = new sql.ConnectionPool(config);
+
+
+  try {
+
+    await pool.connect();
+
+    const request = pool.request();
+
+    city = req.query.ct
+    campus = req.query.cm
+
+    query = "SELECT  escalation3 FROM  [" + dbName + "].[ECCAnalytics].[AlarmEscalationMatrix3] where city = '" + city + "' and campus = '" + campus + "' ;"
+
+    records = await request.query(query)
+
+    return res.status(200).json(records['recordsets'][0])
+
+
+  } catch (err) {
+
+    console.error('Error with SQL Server:', err);
+
+  } finally {
+
+    // Close the connection pool
+
+    pool.close();
+  }
+
+
+}
 /********************************************************************************************************************* */
 module.exports = {
 
@@ -1304,7 +1701,10 @@ module.exports = {
   getruletimerrecord,
   updateallruletimerrecord,
   getdatapointsforrulesengine,
-  geteqvariablesforrulesengine
+  geteqvariablesforrulesengine,
+  alarmescalationmatrix1,
+  alarmescalationmatrix2,
+  alarmescalationmatrix3
 
 
 }

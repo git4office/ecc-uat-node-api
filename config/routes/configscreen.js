@@ -20,8 +20,8 @@ const {addcampusvariableoperation} = require('../controller/ctrl-config');
 const {updatecampusvariableoperation} = require('../controller/ctrl-config');
 const {deletebuildingvariableoperation} = require('../controller/ctrl-config');
 const {deletecampusvariableoperation} = require('../controller/ctrl-config');
-const {getbuildingvariablevalue} = require('../controller/ctrl-config');
-const {updatequipmentvariableoperation} = require('../controller/ctrl-config');
+const {getbuildingvariablevalue,countbynode,deleteuserbyrole} = require('../controller/ctrl-config');
+const {updatequipmentvariableoperation,userdetail,devicetreeview,devicedetails} = require('../controller/ctrl-config');
 
 
 
@@ -68,14 +68,11 @@ router.delete('/ecc/v1/deletebuildingvariableoperation',deletebuildingvariableop
 router.delete('/ecc/v1/deletecampusvariableoperation',deletecampusvariableoperation)
 router.get('/ecc/v1/getbuildingvariablevalue',getbuildingvariablevalue)
 router.put('/ecc/v1/updatequipmentvariableoperation',updatequipmentvariableoperation)
-
-
-
-
-
-
-
-
+router.get('/ecc/v1/userdetail', userdetail)
+router.get('/ecc/v1/devicetreeview', devicetreeview)
+router.get('/ecc/v1/devicedetails', devicedetails)
+router.get('/ecc/v1/countbynode', countbynode)
+router.get('/ecc/v1/deleteuserbyrole', deleteuserbyrole)
 
 
 module.exports = router;
